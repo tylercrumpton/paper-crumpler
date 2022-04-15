@@ -1,0 +1,2 @@
+python-escpos==3.0a8
+firebase-admin==5.2.0
