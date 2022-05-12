@@ -1,2 +1,2 @@
-discord-py-interactions==4.1.0
+discord-py-interactions==4.2.0
 firebase-admin==5.2.0
