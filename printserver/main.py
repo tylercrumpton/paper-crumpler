@@ -5,6 +5,8 @@ from escpos.printer import Usb
 
 import logging
 import traceback
+import os
+import random
 
 # Set up logging
 _logger = logging.getLogger("main")
@@ -34,11 +36,37 @@ class Message:
         self.source = message_data[1]["source"]
 
 
+def ensure_printer_is_connected():
+    global p
+    try:
+        p.is_online()
+    except:
+        _logger.warning("Printer is not connected, attempting to connect")
+        p.close()
+        p = Usb(0x0483, 0x070B)
+
+
 def process_and_print(message: Message):
     _logger.info(
         f"Printing message: [{message.sender}@{message.source}] {message.text}"
     )
-    p.textln(f"[{message.sender}@{message.source}] {message.text}\n\n")
+    sender_block = f"-- {message.sender}@{message.source} "
+    sender_block = (
+        f"{message.sender}"
+        + " " * (30 - len(message.sender) - len(message.source))
+        + f"({message.source})"
+    )
+
+    ensure_printer_is_connected()
+    p.set(font="a", align="left", bold=True)
+    p.textln(sender_block)
+    p.set(font="b", align="left")
+    p.textln(f"{message.text}\n")
+
+    # Randomly pick a line separator to use (dividers/*.png)
+    dividers = [f for f in os.listdir("dividers") if f.endswith(".png")]
+    p.image(os.path.join("dividers",  random.choice(dividers)))
+    p.ln()
 
     _logger.info("Storing message in printedMessages")
     db.reference("printedMessages").child(message.id).set(
