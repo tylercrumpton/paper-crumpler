@@ -43,10 +43,11 @@ bot = interactions.Client(token=secrets.BOT_TOKEN)
     ],
 )
 async def print_message(ctx: interactions.CommandContext, text: str):
-    logging.info(f"Printing message: [{ctx.author.user.username}@discord] {text}")
-    send_print_server_message(text, ctx.author.user.username)
+    nick = ctx.author.nick or ctx.author.user.username
+    logging.info(f"Printing message: [{nick}@discord] {text}")
+    send_print_server_message(text, nick)
     await ctx.send(
-        f"Printing message: `[{ctx.author.user.username}@discord] {text}`",
+        f"Printing message: `[{nick}@discord] {text}`",
         # ephemeral=True,
     )
 
